@@ -23,8 +23,17 @@ class Core:
             # pass data to movement controller
             # repeat
 
+    def dev(self):
+        import time
+
+        img = self.ss_taker.take_screenshot()
+        img.show()
+        while True:
+            time.sleep(1)
+
 
 def main() -> None:
+    Core().dev()
     Core().run()
 
     exit()
