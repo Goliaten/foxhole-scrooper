@@ -1,2 +1,5 @@
 [general]
 test = "test"
+
+[ScreenshotTaker]
+monitor_number = 2
