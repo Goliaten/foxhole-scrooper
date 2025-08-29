@@ -1,0 +1,15 @@
+[project]
+name = "scrooper"
+version = "0.1.0"
+description = "Script for automated scrooping in game Foxhole. "
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.17.1",
+    "ruff>=0.12.7",
+    "types-toml>=0.10.8.20240310",
+]
