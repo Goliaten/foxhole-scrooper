@@ -1,7 +1,5 @@
 from source.modules.screenshot_takers.BaseScreenshotTaker import BaseScreenshotTaker
 import mss
-
-# from PIL.Image import Image
 from PIL import Image
 
 
