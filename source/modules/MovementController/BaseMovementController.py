@@ -1,8 +1,16 @@
 from abc import abstractmethod
+
+import toml
 from source.modules.BaseModule import BaseModule
+import config as cfg
 
 
 class BaseMovementController(BaseModule):
+    def __init__(self):
+        super().__init__()
+        with open(cfg.LOCATIONS_PATH, "r") as file:
+            self.locations = toml.load(file)
+
     @abstractmethod
     def walk_up(self, period: float) -> None: ...
 
