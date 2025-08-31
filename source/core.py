@@ -1,4 +1,3 @@
-from source.helpers.ClickLIstener import start_click_listener
 from source.modules.screenshot_takers.MSSScreenshotTaker import MSSScreenshotTaker
 
 
@@ -26,10 +25,15 @@ class Core:
 
     def dev(self):
         import time
-        from source.modules.MovementController.ClickCenter import ClickCenter
+        from PIL import Image
+        import os
+        import source.config as cfg
+        from source.modules.DataExtractors.dev_ColorDetector import ColorDetector
 
-        start_click_listener()
-        ClickCenter().click_on_center()
+        img = Image.open(
+            os.path.join(cfg.DEV_TEST_IMAGE, "2025-08-31 12_43_57-War.png")
+        )
+        ColorDetector().process_data(img)
 
         while True:
             time.sleep(1)

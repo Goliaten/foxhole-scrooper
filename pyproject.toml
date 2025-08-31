@@ -13,6 +13,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "colorama>=0.4.6",
     "mypy>=1.17.1",
     "pywin32>=311",
     "ruff>=0.12.7",

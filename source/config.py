@@ -11,3 +11,6 @@ PARAMS_PATH = str(Path(RUNTIME_PATH, PARAMS_FILENAME))
 LOCATIONS_FILENAME = "default.toml"
 LOCATIONS_DIR = str(Path("source", "MC_locations"))
 LOCATIONS_PATH = str(Path(RUNTIME_PATH, LOCATIONS_DIR, LOCATIONS_FILENAME))
+
+DEV_DIR = str(Path(RUNTIME_PATH, "source", "DEV"))
+DEV_TEST_IMAGE = str(Path(DEV_DIR, "test_images"))
