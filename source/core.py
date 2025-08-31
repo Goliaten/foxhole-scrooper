@@ -1,3 +1,4 @@
+from source.helpers.ClickLIstener import start_click_listener
 from source.modules.screenshot_takers.MSSScreenshotTaker import MSSScreenshotTaker
 
 
@@ -25,9 +26,11 @@ class Core:
 
     def dev(self):
         import time
+        from source.modules.MovementController.ClickCenter import ClickCenter
 
-        img = self.ss_taker.take_screenshot()
-        img.show()
+        start_click_listener()
+        ClickCenter().click_on_center()
+
         while True:
             time.sleep(1)
 
