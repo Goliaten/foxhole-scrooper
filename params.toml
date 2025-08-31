@@ -3,3 +3,7 @@ test = "test"
 
 [ScreenshotTaker]
 monitor_number = 2
+
+[MovementController]
+offset_x = 0
+offset_y = 0
