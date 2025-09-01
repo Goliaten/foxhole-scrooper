@@ -8,4 +8,7 @@ class MovingWindowScanner(BaseDataExtractor):
         if not isinstance(data, Image.Image):
             img = self.try_parse_to_PILImage(data)
         else:
-            img = data
+            img = data  # noqa: F841
+
+    def extract_data_from_pil_image(self, img: Image.Image) -> None:
+        raise NotImplementedError

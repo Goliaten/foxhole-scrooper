@@ -9,6 +9,10 @@ just_fix_windows_console()
 class ColorDetector(BaseDataExtractor):
     def process_data(self, data):
         # check if data is a PIL.Image.Image
+        # count all colors on it, and time it
+        # try a sparse check
+        # print out all colors using anssi escape sequence
+
         if not isinstance(data, Image.Image):
             img = self.try_parse_to_PILImage(data)
         else:
@@ -46,6 +50,6 @@ class ColorDetector(BaseDataExtractor):
             print(
                 f"\033[38;2;{pixel[0]};{pixel[1]};{pixel[2]}m█\033[0m {pixel} - {cnt} count"
             )
-        # count all colors on it, and time it
-        # try a sparse check
-        # print out all colors using anssi escape sequence
+
+    def extract_data_from_pil_image(self, img):
+        raise NotImplementedError
