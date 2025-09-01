@@ -1,11 +1,11 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import toml
 from source.modules.BaseModule import BaseModule
 import config as cfg
 
 
-class BaseMovementController(BaseModule):
+class BaseMovementController(ABC, BaseModule):
     def __init__(self):
         super().__init__()
         with open(cfg.LOCATIONS_PATH, "r") as file:

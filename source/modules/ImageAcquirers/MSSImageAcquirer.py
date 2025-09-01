@@ -1,9 +1,9 @@
-from source.modules.screenshot_takers.BaseScreenshotTaker import BaseScreenshotTaker
+from source.modules.ImageAcquirers.BaseImageAcquirer import BaseImageAcquirer
 import mss
 from PIL import Image
 
 
-class MSSScreenshotTaker(BaseScreenshotTaker):
+class MSSImageAcquirer(BaseImageAcquirer):
     def take_screenshot(self) -> Image.Image:
         with mss.mss() as sct:
             try:
