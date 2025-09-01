@@ -5,7 +5,7 @@ from source.helpers.Params import read_params
 from source.helpers.Singleton import Singleton
 
 
-class BaseModule(ABC, metaclass=Singleton):
+class BaseModule(Singleton, ABC):
     config: Dict[str, Any]
 
     def __init__(self) -> None:

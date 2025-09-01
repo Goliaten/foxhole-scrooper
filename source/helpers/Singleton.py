@@ -1,7 +1,7 @@
 from typing import Dict
 
 
-class Singleton(type):
+class Singleton:
     _instances: Dict[type, "Singleton"] = {}
 
     def __call__(cls, *args, **kwargs):

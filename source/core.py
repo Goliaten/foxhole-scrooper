@@ -1,4 +1,5 @@
-from source.modules.screenshot_takers.MSSScreenshotTaker import MSSScreenshotTaker
+from source.modules.DataExtractors.AOIExtractor import AOIExtractor
+from source.modules.ImageAcquirers.MSSImageAcquirer import MSSImageAcquirer
 
 
 class Core:
@@ -9,7 +10,7 @@ class Core:
     #         cls._instances = super(Core, cls).__call__(*args, **kwargs)
     #     return cls._instances
     def __init__(self):
-        self.ss_taker = MSSScreenshotTaker()
+        self.ss_taker = MSSImageAcquirer()
 
     def run(self):
         run_condition = True
@@ -33,7 +34,9 @@ class Core:
         img = Image.open(
             os.path.join(cfg.DEV_TEST_IMAGE, "2025-08-31 12_43_57-War.png")
         )
-        ColorDetector().process_data(img)
+        # ColorDetector().process_data(img)
+        AOIExtractor().extract_data_from_pil_image(img)
+        exit()
 
         while True:
             time.sleep(1)
