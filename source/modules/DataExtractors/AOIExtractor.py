@@ -1,17 +1,31 @@
-import os
 from typing import Any, List, Tuple
+from source.enums.DetectedObject import DetectedObject
+from source.helpers.TryParse import try_parse
 from source.modules.DataExtractors.BaseDataExtractor import BaseDataExtractor
 from PIL import Image
 import cv2
 import numpy as np
 import source.config as cfg
+from source.transporter.event.ImageProcessed import ImageProcessed
 
 
 class AOIExtractor(BaseDataExtractor):
-    def process_data(self, data):
-        raise NotImplementedError
+    prev_boxes: Tuple[int, int, int, int] = []
 
-    def extract_data_from_pil_image(self, img: Image.Image) -> Any:
+    def __init__(self):
+        super().__init__()
+        self.config = self.config.get(cfg.CFG_KEY_AOIEXTRACTOR)
+
+    def process_data(self, data: Any) -> ImageProcessed:
+        if isinstance(data, Image.Image):
+            return self.extract_data_from_pil_image(data)
+        else:
+            raise NotImplementedError
+
+    def extract_data_from_pil_image(self, img: Image.Image) -> ImageProcessed:
+        # TODO implement the solid boxes addition and cleaning per execution of this function
+        # TODO implement parametrisable colors to look after (or at least hardcode types, and parametrise color themselves)
+
         # convert pil image to BGR image
         bgr_image = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
@@ -26,11 +40,12 @@ class AOIExtractor(BaseDataExtractor):
         boxes = self.__select_rois_from_mask(
             mask, aspect_min=0.4, aspect_max=2.5, solidity_min=0
         )
+        max_boxes = try_parse(self.config.get("max_salvage_output"), int, -1)
+        boxes = boxes[:max_boxes]
 
-        for x, y, w, h in boxes[:5]:  # choose top-k
-            cv2.rectangle(bgr_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.imwrite(os.path.join(cfg.DEV_TEST_IMAGE, "test_output.jpg"), bgr_image)
-        cv2.imwrite(os.path.join(cfg.DEV_TEST_IMAGE, "mask.jpg"), mask)
+        return ImageProcessed(
+            data={DetectedObject.Salvage: [{"box": x} for x in boxes]}
+        )
 
     def __build_color_mask(
         self,
@@ -67,22 +82,22 @@ class AOIExtractor(BaseDataExtractor):
         self,
         mask: np.ndarray,
         *,
-        min_area=200,
-        max_area=200000,
-        aspect_min=0.2,
-        aspect_max=5.0,
-        solidity_min=0.80,
-        pad=6,
+        min_area: int = 200,
+        max_area: int = 200000,
+        aspect_min: float = 0.2,
+        aspect_max: float = 5.0,
+        solidity_min: float = 0.80,
+        pad: int = 6,
         include_rects: List[
             Tuple[int, int, int, int]
         ] = None,  # [(x,y,w,h), ...] treated as allowed zones
         exclude_rects: List[
             Tuple[int, int, int, int]
         ] = None,  # [(x,y,w,h), ...] areas to ignore
-        prev_boxes=None,
-    ):
-        # TODO comprehend
+    ) -> List[Tuple[int, int, int, int]]:
         h, w = mask.shape
+
+        # Include/exclude given regions in/from the mask
         roi_mask = np.ones_like(mask, dtype=np.uint8) * 255
         if include_rects:
             roi_mask[:] = 0
@@ -94,6 +109,7 @@ class AOIExtractor(BaseDataExtractor):
 
         mask = cv2.bitwise_and(mask, roi_mask)
 
+        # find all candidates, excluding those that don't match given parameters
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         candidates = []
         for c in contours:
@@ -104,6 +120,7 @@ class AOIExtractor(BaseDataExtractor):
             aspect = ww / float(hh)
             if aspect < aspect_min or aspect > aspect_max:
                 continue
+            # find a polygon that includes this contour
             hull = cv2.convexHull(c)
             hull_area = cv2.contourArea(hull) + 1e-6
             solidity = area / hull_area
@@ -121,10 +138,10 @@ class AOIExtractor(BaseDataExtractor):
         def score(entry):
             (x, y, ww, hh), area, (cx, cy) = entry
             s = area  # base: larger blobs first
-            if prev_boxes:  # temporal boost: prefer near previous AOIs
+            if self.prev_boxes:  # temporal boost: prefer near previous AOIs
                 d = min(
                     ((cx - (px + pw / 2)) ** 2 + (cy - (py + ph / 2)) ** 2) ** 0.5
-                    for (px, py, pw, ph) in prev_boxes
+                    for (px, py, pw, ph) in self.prev_boxes
                 )
                 s += max(0, 10000 - d)  # tune the 10000 to your scale
             # mild center preference (optional)
