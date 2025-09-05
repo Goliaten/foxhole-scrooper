@@ -6,6 +6,10 @@ import config as cfg
 
 
 class BaseMovementController(BaseModule):
+    """
+    For controlling the game.
+    """
+
     def __init__(self):
         super().__init__()
         with open(cfg.LOCATIONS_PATH, "r") as file:
