@@ -19,6 +19,6 @@ class MSSImageAcquirer(BaseImageAcquirer):
 
             img = Image.new("RGB", sct_img.size)
             pixels = zip(sct_img.raw[2::4], sct_img.raw[1::4], sct_img.raw[::4])
-            img.putdata(list(pixels)) # type: ignore
+            img.putdata(list(pixels))  # type: ignore
 
             return img

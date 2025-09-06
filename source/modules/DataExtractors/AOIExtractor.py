@@ -43,9 +43,7 @@ class AOIExtractor(BaseDataExtractor):
         max_boxes = try_parse(self.config.get("max_salvage_output"), int, -1)
         boxes = boxes[:max_boxes]
 
-        return DataExtracted(
-            data={DetectedObject.Salvage: [{"box": x} for x in boxes]}
-        )
+        return DataExtracted(data={DetectedObject.Salvage: [{"box": x} for x in boxes]})
 
     def __build_color_mask(
         self,
