@@ -1,5 +1,7 @@
-from typing import Tuple, TypedDict
+from typing import TypedDict
+from source.transporter.Bbox import Bbox
 
 
 class DetectedObjectInstance(TypedDict):
-    box: Tuple[int, int, int, int]
+    box: Bbox
+    box_relative: Bbox

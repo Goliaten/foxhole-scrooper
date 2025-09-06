@@ -6,6 +6,7 @@ from PIL import Image
 import cv2
 import numpy as np
 import source.config as cfg
+from source.transporter.Bbox import Bbox
 from source.transporter.event.DataExtracted import DataExtracted
 
 
@@ -25,6 +26,7 @@ class AOIExtractor(BaseDataExtractor):
     def extract_data_from_pil_image(self, img: Image.Image) -> DataExtracted:
         # TODO implement the solid boxes addition and cleaning per execution of this function
         # TODO implement parametrisable colors to look after (or at least hardcode types, and parametrise color themselves)
+        # TODO generalise to detect salvage, tmats, and exclude any unwanted objects
 
         # convert pil image to BGR image
         bgr_image = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
@@ -43,7 +45,14 @@ class AOIExtractor(BaseDataExtractor):
         max_boxes = try_parse(self.config.get("max_salvage_output"), int, -1)
         boxes = boxes[:max_boxes]
 
-        return DataExtracted(data={DetectedObject.Salvage: [{"box": x} for x in boxes]})
+        return DataExtracted(
+            data={
+                DetectedObject.Salvage: [
+                    {"box": Bbox(*x), "box_relative": Bbox(*x).to_relative(img.size)}
+                    for x in boxes
+                ]
+            }
+        )
 
     def __build_color_mask(
         self,
