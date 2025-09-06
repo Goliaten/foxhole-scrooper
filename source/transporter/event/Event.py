@@ -5,7 +5,7 @@ from typing import Any, Dict
 from source.enums.EventTypes import EventTypes
 
 
-@dataclass
+@dataclass(frozen=True)
 class Event:
     type: EventTypes = EventTypes.Generic
     timestamp: float = field(default_factory=time.time)

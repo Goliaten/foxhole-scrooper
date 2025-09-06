@@ -6,23 +6,23 @@ from PIL import Image
 import cv2
 import numpy as np
 import source.config as cfg
-from source.transporter.event.ImageProcessed import ImageProcessed
+from source.transporter.event.DataExtracted import DataExtracted
 
 
 class AOIExtractor(BaseDataExtractor):
-    prev_boxes: Tuple[int, int, int, int] = []
+    prev_boxes: List[Tuple[int, int, int, int]] = []
 
     def __init__(self):
         super().__init__()
         self.config = self.config.get(cfg.CFG_KEY_AOIEXTRACTOR)
 
-    def process_data(self, data: Any) -> ImageProcessed:
+    def process_data(self, data: Any) -> DataExtracted:
         if isinstance(data, Image.Image):
             return self.extract_data_from_pil_image(data)
         else:
             raise NotImplementedError
 
-    def extract_data_from_pil_image(self, img: Image.Image) -> ImageProcessed:
+    def extract_data_from_pil_image(self, img: Image.Image) -> DataExtracted:
         # TODO implement the solid boxes addition and cleaning per execution of this function
         # TODO implement parametrisable colors to look after (or at least hardcode types, and parametrise color themselves)
 
@@ -43,7 +43,7 @@ class AOIExtractor(BaseDataExtractor):
         max_boxes = try_parse(self.config.get("max_salvage_output"), int, -1)
         boxes = boxes[:max_boxes]
 
-        return ImageProcessed(
+        return DataExtracted(
             data={DetectedObject.Salvage: [{"box": x} for x in boxes]}
         )
 
@@ -90,10 +90,10 @@ class AOIExtractor(BaseDataExtractor):
         pad: int = 6,
         include_rects: List[
             Tuple[int, int, int, int]
-        ] = None,  # [(x,y,w,h), ...] treated as allowed zones
+        ] = [],  # [(x,y,w,h), ...] treated as allowed zones
         exclude_rects: List[
             Tuple[int, int, int, int]
-        ] = None,  # [(x,y,w,h), ...] areas to ignore
+        ] = [],  # [(x,y,w,h), ...] areas to ignore
     ) -> List[Tuple[int, int, int, int]]:
         h, w = mask.shape
 
