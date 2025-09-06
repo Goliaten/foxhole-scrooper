@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
-from typing import Tuple
+from typing import List, Tuple
+import cv2
+import numpy as np
 
 
 @dataclass(frozen=True)
@@ -32,3 +34,22 @@ class Bbox:
             int(self.w * dimensions[0]),
             int(self.h * dimensions[1]),
         )
+
+    def to_list(self) -> List[float]:
+        return [self.x, self.y, self.w, self.h]
+
+    def get_distance_from_centers(self, inp: "Bbox" | Tuple[float, float]) -> float:
+        if isinstance(inp, Bbox):
+            return cv2.norm(
+                np.array([self.c_x, self.c_y]),
+                np.array([inp.c_x, inp.c_y]),
+                cv2.NORM_L2,
+            )
+        elif isinstance(inp, (list, tuple)):
+            return cv2.norm(
+                np.array([self.c_x, self.c_y]),
+                np.array([inp[0], inp[1]]),
+                cv2.NORM_L2,
+            )
+        else:
+            return float("inf")
