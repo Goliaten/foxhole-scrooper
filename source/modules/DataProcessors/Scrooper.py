@@ -28,10 +28,13 @@ class Scrooper(BaseDataProcessor):
     def process_extracted_data(self, event: DataExtracted) -> Event:
         assert isinstance(event, DataExtracted)
 
+        print(event.data.keys())
         if DetectedObject.TechMaterial in event.data:
+            print("got tmat detected")
             self.scroop_tmat(event.data[DetectedObject.TechMaterial])
         elif DetectedObject.Salvage in event.data:
-            self.scroop(event.data[DetectedObject.TechMaterial])
+            print("got salvage detected")
+            self.scroop(event.data[DetectedObject.Salvage])
 
         return Event(type=EventTypes.Empty)
 
@@ -48,7 +51,7 @@ class Scrooper(BaseDataProcessor):
                 continue
             print(
                 "bingus ",
-                det_object["box_relative"].get_distance_from_centers(ref_point) < 0.05,
+                det_object["box_relative"].get_distance_from_centers(ref_point),
             )
 
             # TODO if player is above it - gather it

@@ -13,4 +13,4 @@ max_salvage_output = 5
 save_images_with_detections = true
 
 [Scrooper]
-refference_point = [0.5, 0.3]
+refference_point = [0.5, 0.55]

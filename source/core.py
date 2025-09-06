@@ -1,4 +1,5 @@
 from source.modules.DataExtractors.AOIExtractor import AOIExtractor
+from source.modules.DataProcessors.Scrooper import Scrooper
 from source.modules.ImageAcquirers.MSSImageAcquirer import MSSImageAcquirer
 
 
@@ -32,10 +33,12 @@ class Core:
         from source.modules.DataExtractors.dev_ColorDetector import ColorDetector
 
         img = Image.open(
-            os.path.join(cfg.DEV_TEST_IMAGE, "2025-08-31 12_43_57-War.png")
+            # os.path.join(cfg.DEV_TEST_IMAGE, "2025-08-31 12_43_57-War.png")
+            os.path.join(cfg.DEV_TEST_IMAGE, "2025-09-03 20_13_42-War.png")
         )
         # ColorDetector().process_data(img)
-        AOIExtractor().extract_data_from_pil_image(img)
+        event = AOIExtractor().extract_data_from_pil_image(img)
+        Scrooper().process_data(event)
         exit()
 
         while True:
