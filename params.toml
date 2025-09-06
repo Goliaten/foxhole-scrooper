@@ -10,3 +10,6 @@ offset_y = 0
 
 [AOIExtractor]
 max_salvage_output = 5
+
+[Scrooper]
+refference_point = [0.5, 0.3]

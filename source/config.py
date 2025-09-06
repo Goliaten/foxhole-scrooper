@@ -16,3 +16,4 @@ DEV_DIR = str(Path(RUNTIME_PATH, "source", "DEV"))
 DEV_TEST_IMAGE = str(Path(DEV_DIR, "test_images"))
 
 CFG_KEY_AOIEXTRACTOR = "AOIExtractor"
+CFG_KEY_SCROOPER = "Scrooper"

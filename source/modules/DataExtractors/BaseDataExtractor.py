@@ -5,7 +5,8 @@ from PIL import Image
 
 from source.transporter.event.Event import Event
 
-
+# TODO make data extractor, which extracts info from text written on screen or in certain areas
+# TODO make data extractor, which reads inventory
 class BaseDataExtractor(BaseModule):
     """
     For extracting useful data from an image, and converting it to usable format.
