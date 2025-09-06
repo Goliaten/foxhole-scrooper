@@ -45,6 +45,9 @@ class AOIExtractor(BaseDataExtractor):
         max_boxes = try_parse(self.config.get("max_salvage_output"), int, -1)
         boxes = boxes[:max_boxes]
 
+        if self.config.get("save_images_with_detections"):
+            self.__save_images_with_detections(bgr_image, boxes, mask, img.size)
+
         return DataExtracted(
             data={
                 DetectedObject.Salvage: [
@@ -53,6 +56,27 @@ class AOIExtractor(BaseDataExtractor):
                 ]
             }
         )
+
+    def __save_images_with_detections(
+        self, bgr_image, boxes, mask, img_size: Tuple[int, int]
+    ) -> None:
+        import os
+        from source.helpers.Params import read_params
+
+        scroop_ref_point = (
+            read_params().get("Scrooper", {}).get("refference_point", [0, 0])
+        )
+        scroop_ref_point = [
+            int(scroop_ref_point[0] * img_size[0]),
+            int(scroop_ref_point[1] * img_size[1]),
+        ]
+        print(scroop_ref_point)
+        for x, y, w, h in boxes[:5]:  # choose top-k
+            cv2.rectangle(bgr_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.circle(bgr_image, scroop_ref_point, 5, (255, 0, 0, 255), 5)
+
+        cv2.imwrite(os.path.join(cfg.DEV_TEST_IMAGE, "test_output.jpg"), bgr_image)
+        cv2.imwrite(os.path.join(cfg.DEV_TEST_IMAGE, "mask.jpg"), mask)
 
     def __build_color_mask(
         self,
