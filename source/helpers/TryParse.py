@@ -3,10 +3,10 @@ from typing import Any, Type, TypeVar
 T = TypeVar("T")
 
 
-def try_parse(value: Any, type: Type[T], default: T) -> T:
+def try_parse(value: Any, type_: Type[T], default: T) -> T:
     try:
-        out = T(value)
+        out = type_(value)  # type:ignore
     except Exception:
-        print(f"Couldnt parse value into {type(T)}. Defaulting to {default}.")
+        print(f"Couldnt parse value {value} into {type}. Defaulting to {default}.")
         out = default
     return out
