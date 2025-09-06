@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 
-@dataclass(frozen=True)
+@dataclass
 class Bbox:
     x: float
     y: float
