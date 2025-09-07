@@ -29,7 +29,6 @@ class Scrooper(BaseDataProcessor):
     def process_extracted_data(self, event: DataExtracted) -> Event:
         assert isinstance(event, DataExtracted)
 
-        print(event.data.keys())
         if DetectedObject.TechMaterial in event.data:
             print("got tmat detected")
             self.scroop_tmat(event.data[DetectedObject.TechMaterial])
@@ -55,24 +54,27 @@ class Scrooper(BaseDataProcessor):
             # FIXME enforce an order in which we check the bboxes
             if not self.check_detected_object_instance(det_object):
                 continue
-            dist = det_object["box"].get_distance_from_centers(ref_point)
-            angle = det_object["box"].get_angle_from_centers(
-                ref_point, top_point_scaled
+            dist = round(det_object["box"].get_distance_from_centers(ref_point), 3)
+            angle = round(
+                det_object["box"].get_angle_from_centers(ref_point, top_point_scaled), 3
             )
-            print("bingus ", dist, angle)
 
             # TODO if player is above it - gather it
             if dist <= very_close_dist:
-                print("gather salvage (on top)")
+                print(f"gather salvage (on top) {dist=} {angle=}")
+
+            # TODO if player is in front of it - gather it
             if abs(angle) < front_angle and dist <= close_dist:
-                print("gather salvage (close enough)")
+                print(f"gather salvage (close enough) {dist=} {angle=}")
+
             # TODO if object is in center above player - move towards tmat
             if abs(angle) <= front_angle:
-                print(f"move by {distance}")
+                print(f"move by {dist} {dist=} {angle=}")
+
             # TODO if object is at off angle - rotate camera
             if abs(angle) > front_angle:
-                direction = math.copysign(1, angle)  # int(angle / (abs(angle) - 1e-6))
-                print(f"rotate {direction} by {abs(angle)}")
+                direction = math.copysign(1, angle)
+                print(f"rotate {direction} by {abs(angle)} {dist=} {angle=}")
 
         else:
             # TODO send a message into process_extracted_data, that no tmat was succesfully processed

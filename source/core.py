@@ -32,13 +32,44 @@ class Core:
         import source.config as cfg
         from source.modules.DataExtractors.dev_ColorDetector import ColorDetector
 
-        img = Image.open(
-            # os.path.join(cfg.DEV_TEST_IMAGE, "2025-08-31 12_43_57-War.png")
-            os.path.join(cfg.DEV_TEST_IMAGE, "2025-09-03 20_13_42-War.png")
-        )
-        # ColorDetector().process_data(img)
-        event = AOIExtractor().extract_data_from_pil_image(img)
-        Scrooper().process_data(event)
+        def avg(lst):
+            if not lst:
+                return 0
+            return sum(lst) / len(lst)
+
+        times_100 = []
+        times_100_img = []
+        times_100_aoi = []
+        times_100_scrooper = []
+        while True:
+            time.sleep(1)
+            t0 = time.time_ns()
+            img = MSSImageAcquirer().take_screenshot()
+            t1a = time.time_ns()
+            event = AOIExtractor().extract_data_from_pil_image(img)
+            t1b = time.time_ns()
+            Scrooper().process_data(event)
+            t1 = time.time_ns()
+
+            times_100.append(t1 - t0)
+            times_100_img.append(t1a - t0)
+            times_100_aoi.append(t1b - t1a)
+            times_100_scrooper.append(t1 - t1b)
+
+            while len(times_100_img) > 100:
+                times_100_img.pop(0)
+            while len(times_100_aoi) > 100:
+                times_100_aoi.pop(0)
+            while len(times_100_scrooper) > 100:
+                times_100_scrooper.pop(0)
+            while len(times_100) > 100:
+                times_100.pop(0)
+            print(
+                f"Total: {round(avg(times_100) / 1e9, 6)}s; "
+                f"Image: {round(avg(times_100_img) / 1e9, 6)}s; "
+                f"AOI: {round(avg(times_100_aoi) / 1e9, 6)}s; "
+                f"Scrooper: {round(avg(times_100_scrooper) / 1e9, 6)}s"
+            )
         exit()
 
         while True:
