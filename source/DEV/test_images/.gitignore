@@ -1,2 +1,4 @@
 mask.jpg
 test_output.jpg
+mask*.jpg
+test_output*.jpg

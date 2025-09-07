@@ -43,25 +43,47 @@ class AOIExtractor(BaseDataExtractor):
             mask, aspect_min=0.4, aspect_max=2.5, solidity_min=0
         )
         max_boxes = try_parse(self.config.get("max_salvage_output"), int, -1)
-        boxes = boxes[:max_boxes]
+        max_memory = try_parse(self.config.get("max_boxes_iteration_memory"), int, 0)
+        if max_boxes < 0:
+            max_boxes = 0
+        if max_memory < 0:
+            max_memory = 0
+
+        if max_boxes > 0:
+            boxes = boxes[:max_boxes]
+        self.__add_to_prev_boxes(boxes, max_boxes, max_memory)
 
         if self.config.get("save_images_with_detections"):
             self.__save_images_with_detections(bgr_image, boxes, mask, img.size)
 
-        return DataExtracted(
-            data={
-                DetectedObject.Salvage: [
-                    {"box": Bbox(*x), "box_relative": Bbox(*x).to_relative(img.size)}
-                    for x in boxes
-                ]
-            }
-        )
+        data = {}
+        if boxes:
+            data[DetectedObject.Salvage] = [
+                {"box": Bbox(*x), "box_relative": Bbox(*x).to_relative(img.size)}
+                for x in boxes
+            ]
+
+        return DataExtracted(data=data)
+
+    def __add_to_prev_boxes(
+        self, boxes: List[Tuple[int, int, int, int]], max_boxes: int, max_memory
+    ) -> None:
+        self.prev_boxes.extend(boxes)
+        while len(self.prev_boxes) > max_boxes * max_memory:
+            self.prev_boxes.pop(0)
 
     def __save_images_with_detections(
         self, bgr_image, boxes, mask, img_size: Tuple[int, int]
     ) -> None:
         import os
+        import time
         from source.helpers.Params import read_params
+
+        max_boxes = try_parse(self.config.get("max_salvage_output"), int, -1)
+        if max_boxes < 0:
+            max_boxes = 0
+        if max_boxes:
+            boxes = boxes[:max_boxes]
 
         scroop_ref_point = (
             read_params().get("Scrooper", {}).get("refference_point", [0, 0])
@@ -70,13 +92,26 @@ class AOIExtractor(BaseDataExtractor):
             int(scroop_ref_point[0] * img_size[0]),
             int(scroop_ref_point[1] * img_size[1]),
         ]
-        print(scroop_ref_point)
-        for x, y, w, h in boxes[:5]:  # choose top-k
+
+        for cnt, (x, y, w, h) in enumerate(boxes):  # choose top-k
             cv2.rectangle(bgr_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.putText(
+                bgr_image,
+                f"det_{cnt}",
+                (x, y),
+                cv2.FONT_HERSHEY_COMPLEX_SMALL,
+                1,
+                (0, 0, 0),
+            )
         cv2.circle(bgr_image, scroop_ref_point, 5, (255, 0, 0, 255), 5)
 
-        cv2.imwrite(os.path.join(cfg.DEV_TEST_IMAGE, "test_output.jpg"), bgr_image)
-        cv2.imwrite(os.path.join(cfg.DEV_TEST_IMAGE, "mask.jpg"), mask)
+        cv2.imwrite(
+            os.path.join(cfg.DEV_TEST_IMAGE, f"test_output_{int(time.time())}.jpg"),
+            bgr_image,
+        )
+        cv2.imwrite(
+            os.path.join(cfg.DEV_TEST_IMAGE, f"mask_{int(time.time())}.jpg"), mask
+        )
 
     def __build_color_mask(
         self,
