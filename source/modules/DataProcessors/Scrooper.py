@@ -1,3 +1,4 @@
+import math
 from typing import Iterable, List, Literal, Tuple
 from source.enums.DetectedObject import DetectedObject
 from source.enums.EventTypes import EventTypes
@@ -44,19 +45,34 @@ class Scrooper(BaseDataProcessor):
     def scroop(self, data: List[DetectedObjectInstance]) -> Event:
         # check where is the bbox
         # ? check if it's large enough
-        ref_point = self.get_refference_point(scale=False)
+        ref_point = self.get_refference_point(scale=True)
+        top_point_scaled = (ref_point[0], 0)
+        front_angle = 10  # FIXME hardoced param
+        close_dist = 50  # FIXME hardoced param
+        very_close_dist = 20  # FIXME hardoced param
 
         for det_object in data:
+            # FIXME enforce an order in which we check the bboxes
             if not self.check_detected_object_instance(det_object):
                 continue
-            print(
-                "bingus ",
-                det_object["box_relative"].get_distance_from_centers(ref_point),
+            dist = det_object["box"].get_distance_from_centers(ref_point)
+            angle = det_object["box"].get_angle_from_centers(
+                ref_point, top_point_scaled
             )
+            print("bingus ", dist, angle)
 
             # TODO if player is above it - gather it
+            if dist <= very_close_dist:
+                print("gather salvage (on top)")
+            if abs(angle) < front_angle and dist <= close_dist:
+                print("gather salvage (close enough)")
             # TODO if object is in center above player - move towards tmat
+            if abs(angle) <= front_angle:
+                print(f"move by {distance}")
             # TODO if object is at off angle - rotate camera
+            if abs(angle) > front_angle:
+                direction = math.copysign(1, angle)  # int(angle / (abs(angle) - 1e-6))
+                print(f"rotate {direction} by {abs(angle)}")
 
         else:
             # TODO send a message into process_extracted_data, that no tmat was succesfully processed
@@ -84,6 +100,6 @@ class Scrooper(BaseDataProcessor):
 
         # FIXME hardcoded screen resolution
         screen_x, screen_y = 1920, 1080
-        out = (int(ref_point[0] * screen_x), int(ref_point[1] * screen_y))
+        out = (ref_point[0] * screen_x, ref_point[1] * screen_y)
 
         return out
