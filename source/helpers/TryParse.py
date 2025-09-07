@@ -7,6 +7,6 @@ def try_parse(value: Any, type_: Type[T], default: T) -> T:
     try:
         out = type_(value)  # type:ignore
     except Exception:
-        print(f"Couldnt parse value {value} into {type}. Defaulting to {default}.")
+        print(f"Couldnt parse value {value} into {type_}. Defaulting to {default}.")
         out = default
     return out
