@@ -7,3 +7,4 @@ class EventTypes(Enum):
     ImageDetected = "IMAGE_DETECTED"
     ImageProcessed = "IMAGE_PROCESSED"
     DataExtracted = "DATA_EXTRACTED"
+    DataProcessed = "DATA_PROCESSED"
