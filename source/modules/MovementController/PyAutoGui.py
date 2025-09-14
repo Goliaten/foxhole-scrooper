@@ -1,3 +1,4 @@
+from source.helpers.OffsetPoint import offset_point, offset_point_provided_config
 from source.modules.MovementController.BaseMovementController import (
     BaseMovementController,
 )
@@ -12,6 +13,12 @@ except Exception as e:
 
 
 class PyAutoGui(BaseMovementController):
+    clicked_center = False
+
+    def __init__(self):
+        super().__init__()
+        self.__click_center()
+
     def walk_up(self, period: float):
         self.__press_key_for_time("w", period)
 
@@ -25,10 +32,10 @@ class PyAutoGui(BaseMovementController):
         self.__press_key_for_time("s", period)
 
     def rotate_right(self, period: float):
-        self.__press_key_for_time(".", period)
+        self.__press_key_for_time(",", period)
 
     def rotate_left(self, period: float):
-        self.__press_key_for_time(",", period)
+        self.__press_key_for_time(".", period)
 
     def left_click(self):
         pg.leftClick()
@@ -46,3 +53,17 @@ class PyAutoGui(BaseMovementController):
         pg.keyDown(key)
         time.sleep(period)
         pg.keyUp(key)
+
+    def __click_center(self):
+        if PyAutoGui.clicked_center:
+            return
+
+        PyAutoGui.clicked_center = True
+        screen = pg.size()
+        point = int(screen[0] / 2), int(screen[1] / 2)
+        off_x = self.config.get("offset_x")
+        off_y = self.config.get("offset_y")
+        point = offset_point(point, (off_x, off_y))
+        print(point)
+        pg.moveTo(point)
+        pg.middleClick()

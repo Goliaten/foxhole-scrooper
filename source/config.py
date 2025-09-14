@@ -17,3 +17,4 @@ DEV_TEST_IMAGE = str(Path(DEV_DIR, "test_images"))
 
 CFG_KEY_AOIEXTRACTOR = "AOIExtractor"
 CFG_KEY_SCROOPER = "Scrooper"
+CFG_KEY_MOVEMENT_CONTROLLER = "MovementController"

@@ -5,8 +5,9 @@ test = "test"
 monitor_number = 2
 
 [MovementController]
-offset_x = 0 # -1920
+offset_x = -1920
 offset_y = 0
+dry_run = false
 
 [AOIExtractor]
 max_salvage_output = -1
