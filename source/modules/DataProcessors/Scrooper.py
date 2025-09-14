@@ -2,8 +2,17 @@ import math
 from typing import Iterable, List, Literal, Tuple
 from source.enums.DetectedObject import DetectedObject
 from source.enums.EventTypes import EventTypes
+from source.enums.MovementActions import MovementActions
 from source.modules.DataProcessors.BaseDataProcessor import BaseDataProcessor
+from source.transporter.MovementControllerInputs.ClickTransporter import (
+    ClickTransporter,
+)
+from source.transporter.MovementControllerInputs.RotateTransporter import (
+    RotateTransporter,
+)
+from source.transporter.MovementControllerInputs.WalkTransporter import WalkTransporter
 from source.transporter.event.DataExtracted import DataExtracted
+from source.transporter.event.DataProcessed import DataProcessed
 from source.transporter.event.Event import Event
 from source.typed_dicts.DetectedObjectInstance import DetectedObjectInstance
 import source.config as cfg
@@ -17,7 +26,7 @@ class Scrooper(BaseDataProcessor):
         super().__init__()
         self.config = self.config.get(cfg.CFG_KEY_SCROOPER)
 
-    def process_data(self, event: Event) -> Event:
+    def process_data(self, event: Event) -> DataProcessed:
         out = Event(type=EventTypes.Empty)
 
         if event.type == EventTypes.DataExtracted:
@@ -26,29 +35,33 @@ class Scrooper(BaseDataProcessor):
 
         return out
 
-    def process_extracted_data(self, event: DataExtracted) -> Event:
+    def process_extracted_data(self, event: DataExtracted) -> DataProcessed:
         assert isinstance(event, DataExtracted)
 
         if DetectedObject.TechMaterial in event.data:
             print("got tmat detected")
-            self.scroop_tmat(event.data[DetectedObject.TechMaterial])
+            out = self.scroop_tmat(event.data[DetectedObject.TechMaterial])
         elif DetectedObject.Salvage in event.data:
             print("got salvage detected")
-            self.scroop(event.data[DetectedObject.Salvage])
+            out = self.scroop(event.data[DetectedObject.Salvage])
+        # TODO make default action in case there is absolutely no scroop
 
-        return Event(type=EventTypes.Empty)
+        return out
 
-    def scroop_tmat(self, data: List[DetectedObjectInstance]) -> Event:
+    def scroop_tmat(self, data: List[DetectedObjectInstance]) -> DataProcessed:
+        # TODO implement scroopint TMATs
         raise NotImplementedError
 
-    def scroop(self, data: List[DetectedObjectInstance]) -> Event:
+    def scroop(self, data: List[DetectedObjectInstance]) -> DataProcessed:
         # check where is the bbox
         # ? check if it's large enough
         ref_point = self.get_refference_point(scale=True)
         top_point_scaled = (ref_point[0], 0)
-        front_angle = 10  # FIXME hardoced param
-        close_dist = 50  # FIXME hardoced param
-        very_close_dist = 20  # FIXME hardoced param
+        front_angle = 15  # FIXME hardcoded param
+        close_dist = 50  # FIXME hardcoded param
+        very_close_dist = 20  # FIXME hardcoded param
+        medium_dist = 200
+        medium_angle = 80
 
         for det_object in data:
             # FIXME enforce an order in which we check the bboxes
@@ -62,19 +75,53 @@ class Scrooper(BaseDataProcessor):
             # TODO if player is above it - gather it
             if dist <= very_close_dist:
                 print(f"gather salvage (on top) {dist=} {angle=}")
+                return DataProcessed(
+                    data={MovementActions.ClickLeft: ClickTransporter()}
+                )
 
             # TODO if player is in front of it - gather it
             if abs(angle) < front_angle and dist <= close_dist:
                 print(f"gather salvage (close enough) {dist=} {angle=}")
+                return DataProcessed(
+                    data={MovementActions.ClickLeft: ClickTransporter()}
+                )
 
             # TODO if object is in center above player - move towards tmat
             if abs(angle) <= front_angle:
-                print(f"move by {dist} {dist=} {angle=}")
+                print(f"move (front angle) by {dist} {dist=} {angle=}")
+                walk_time = 0.2  # FIXME hardcoded param
+                return DataProcessed(
+                    data={MovementActions.WalkUp: WalkTransporter(walk_time)}
+                )
+
+            if abs(angle) < medium_angle and dist <= medium_dist:
+                print(f"move (medium angle, medium dist) by {dist} {dist=} {angle=}")
+                walk_time = 0.2  # FIXME hardcoded param
+                return DataProcessed(
+                    data={MovementActions.WalkUp: WalkTransporter(walk_time)}
+                )
 
             # TODO if object is at off angle - rotate camera
             if abs(angle) > front_angle:
                 direction = math.copysign(1, angle)
                 print(f"rotate {direction} by {abs(angle)} {dist=} {angle=}")
+                rotate_time = 0.5 * (
+                    abs(angle) / 180
+                )  # TODO make better rotation angle calculation
+                # TODO parametrise
+
+                if direction > 0:
+                    return DataProcessed(
+                        data={
+                            MovementActions.RotateRight: RotateTransporter(rotate_time)
+                        }
+                    )
+                else:
+                    return DataProcessed(
+                        data={
+                            MovementActions.RotateLeft: RotateTransporter(rotate_time)
+                        }
+                    )
 
         else:
             # TODO send a message into process_extracted_data, that no tmat was succesfully processed
