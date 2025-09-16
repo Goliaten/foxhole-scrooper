@@ -65,32 +65,34 @@ class Scrooper(BaseDataProcessor):
         base_walk_time = self.config.get("base_walk_time")
         distance_to_time_scale = self.config.get("distance_to_time_scale")
 
+        # sort by distance
         data.sort(key=lambda x: x["box"].get_distance_from_centers(ref_point))
 
         for det_object in data:
-            # FIXME enforce an order in which we check the bboxes
             if not self.check_detected_object_instance(det_object):
                 continue
+
+            # FIXME distance and angle are not linear due to camera angle we got in game.
             dist = round(det_object["box"].get_distance_from_centers(ref_point), 3)
             angle = round(
                 det_object["box"].get_angle_from_centers(ref_point, top_point_scaled), 3
             )
 
-            # TODO if player is above it - gather it
+            # NOTE if player is above it - gather it
             if dist <= very_close_dist:
                 print(f"gather salvage (on top) {dist=} {angle=}")
                 return DataProcessed(
                     data={MovementActions.ClickLeft: ClickTransporter()}
                 )
 
-            # TODO if player is in front of it - gather it
+            # NOTE if player is in front of it - gather it
             if abs(angle) < front_angle and dist <= close_dist:
                 print(f"gather salvage (close enough) {dist=} {angle=}")
                 return DataProcessed(
                     data={MovementActions.ClickLeft: ClickTransporter()}
                 )
 
-            # TODO if object is in center above player - move towards tmat
+            # NOTE if object is in center above player - move towards tmat
             if abs(angle) <= front_angle:
                 print(f"move (front angle) by {dist} {dist=} {angle=}")
                 walk_time = base_walk_time * dist / distance_to_time_scale
@@ -105,7 +107,7 @@ class Scrooper(BaseDataProcessor):
                     data={MovementActions.WalkUp: WalkTransporter(walk_time)}
                 )
 
-            # TODO if object is at off angle - rotate camera
+            # NOTE if object is at off angle - rotate camera
             if abs(angle) > front_angle:
                 direction = math.copysign(1, angle)
                 print(f"rotate {direction} by {abs(angle)} {dist=} {angle=}")
