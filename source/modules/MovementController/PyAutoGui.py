@@ -60,7 +60,9 @@ class PyAutoGui(BaseMovementController):
 
         PyAutoGui.clicked_center = True
         screen = pg.size()
-        point = int(screen[0] / 2), int(screen[1] / 2)
+        point = self.config.get("center_click_pos")
+        point = int(screen[0] * point[0]), int(screen[1] * point[1])
+        # point = int(screen[0] / 2), int(screen[1] / 2)
         off_x = self.config.get("offset_x")
         off_y = self.config.get("offset_y")
         point = offset_point(point, (off_x, off_y))
