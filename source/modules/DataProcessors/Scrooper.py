@@ -61,6 +61,9 @@ class Scrooper(BaseDataProcessor):
         very_close_dist = self.config.get("very_close_distance")
         medium_dist = self.config.get("medium_distance")
         medium_angle = self.config.get("medium_angle")
+        rotate_time_addition = self.config.get("rotate_time_addition")
+        base_walk_time = self.config.get("base_walk_time")
+        distance_to_time_scale = self.config.get("distance_to_time_scale")
 
         data.sort(key=lambda x: x["box"].get_distance_from_centers(ref_point))
 
@@ -90,14 +93,14 @@ class Scrooper(BaseDataProcessor):
             # TODO if object is in center above player - move towards tmat
             if abs(angle) <= front_angle:
                 print(f"move (front angle) by {dist} {dist=} {angle=}")
-                walk_time = 0.2  # FIXME hardcoded param
+                walk_time = base_walk_time * dist / distance_to_time_scale
                 return DataProcessed(
                     data={MovementActions.WalkUp: WalkTransporter(walk_time)}
                 )
 
             if abs(angle) < medium_angle and dist <= medium_dist:
                 print(f"move (medium angle, medium dist) by {dist} {dist=} {angle=}")
-                walk_time = 0.2  # FIXME hardcoded param
+                walk_time = base_walk_time * dist / distance_to_time_scale
                 return DataProcessed(
                     data={MovementActions.WalkUp: WalkTransporter(walk_time)}
                 )
@@ -106,10 +109,7 @@ class Scrooper(BaseDataProcessor):
             if abs(angle) > front_angle:
                 direction = math.copysign(1, angle)
                 print(f"rotate {direction} by {abs(angle)} {dist=} {angle=}")
-                rotate_time = 0.5 * (
-                    abs(angle) / 180
-                )  # TODO make better rotation angle calculation
-                # TODO parametrise
+                rotate_time = (abs(angle) / 180) + rotate_time_addition
 
                 if direction > 0:
                     return DataProcessed(
