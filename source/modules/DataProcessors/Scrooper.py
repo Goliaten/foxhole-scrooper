@@ -49,19 +49,20 @@ class Scrooper(BaseDataProcessor):
         return out
 
     def scroop_tmat(self, data: List[DetectedObjectInstance]) -> DataProcessed:
-        # TODO implement scroopint TMATs
+        # TODO implement scrooping TMATs
         raise NotImplementedError
 
     def scroop(self, data: List[DetectedObjectInstance]) -> DataProcessed:
-        # check where is the bbox
-        # ? check if it's large enough
+        # check if bbox is large enough?
         ref_point = self.get_refference_point(scale=True)
         top_point_scaled = (ref_point[0], 0)
-        front_angle = 15  # FIXME hardcoded param
-        close_dist = 50  # FIXME hardcoded param
-        very_close_dist = 20  # FIXME hardcoded param
-        medium_dist = 200
-        medium_angle = 80
+        front_angle = self.config.get("front_angle")
+        close_dist = self.config.get("close_distance")
+        very_close_dist = self.config.get("very_close_distance")
+        medium_dist = self.config.get("medium_distance")
+        medium_angle = self.config.get("medium_angle")
+
+        data.sort(key=lambda x: x["box"].get_distance_from_centers(ref_point))
 
         for det_object in data:
             # FIXME enforce an order in which we check the bboxes

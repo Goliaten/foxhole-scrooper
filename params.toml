@@ -16,3 +16,8 @@ save_images_with_detections = true
 
 [Scrooper]
 refference_point = [0.5, 0.55]
+very_close_distance = 20
+close_distance = 50
+medium_distance = 200
+front_angle = 15
+medium_angle = 80
