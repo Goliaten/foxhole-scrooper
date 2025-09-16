@@ -27,6 +27,7 @@ class AOIExtractor(BaseDataExtractor):
         # TODO implement the solid boxes addition and cleaning per execution of this function
         # TODO implement parametrisable colors to look after (or at least hardcode types, and parametrise color themselves)
         # TODO generalise to detect salvage, tmats, and exclude any unwanted objects
+        # TODO parametrise
 
         # convert pil image to BGR image
         bgr_image = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
