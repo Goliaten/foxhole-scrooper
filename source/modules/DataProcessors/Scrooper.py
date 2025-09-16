@@ -62,8 +62,8 @@ class Scrooper(BaseDataProcessor):
         medium_dist = self.config.get("medium_distance")
         medium_angle = self.config.get("medium_angle")
         rotate_time_addition = self.config.get("rotate_time_addition")
-        base_walk_time = self.config.get("base_walk_time")
-        distance_to_time_scale = self.config.get("distance_to_time_scale")
+        distance_scale = self.config.get("distance_scale")
+        distance_power = self.config.get("distance_power")
 
         # sort by distance
         data.sort(key=lambda x: x["box"].get_distance_from_centers(ref_point))
@@ -81,6 +81,7 @@ class Scrooper(BaseDataProcessor):
             # NOTE if player is above it - gather it
             if dist <= very_close_dist:
                 print(f"gather salvage (on top) {dist=} {angle=}")
+                # NOTE ok, if we're close, the distance is a bit too much. If we're too far, the distance is a bit too short
                 return DataProcessed(
                     data={MovementActions.ClickLeft: ClickTransporter()}
                 )
@@ -95,14 +96,14 @@ class Scrooper(BaseDataProcessor):
             # NOTE if object is in center above player - move towards tmat
             if abs(angle) <= front_angle:
                 print(f"move (front angle) by {dist} {dist=} {angle=}")
-                walk_time = base_walk_time * dist / distance_to_time_scale
+                walk_time = (dist / distance_scale) ** distance_power
                 return DataProcessed(
                     data={MovementActions.WalkUp: WalkTransporter(walk_time)}
                 )
 
             if abs(angle) < medium_angle and dist <= medium_dist:
                 print(f"move (medium angle, medium dist) by {dist} {dist=} {angle=}")
-                walk_time = base_walk_time * dist / distance_to_time_scale
+                walk_time = dist / distance_scale
                 return DataProcessed(
                     data={MovementActions.WalkUp: WalkTransporter(walk_time)}
                 )

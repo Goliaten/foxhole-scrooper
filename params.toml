@@ -13,7 +13,7 @@ dry_run = false
 [AOIExtractor]
 max_salvage_output = -1
 max_boxes_iteration_memory = 0
-save_images_with_detections = true
+save_images_with_detections = false
 
 [Scrooper]
 refference_point = [0.5, 0.565]
@@ -23,5 +23,5 @@ medium_distance = 200
 front_angle = 15
 medium_angle = 80
 rotate_time_scale = -0.1
-base_walk_time = 2
-distance_to_time_scale = 400
+distance_scale = 230
+distance_power = 1.3

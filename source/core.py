@@ -32,6 +32,14 @@ class Core:
         import os
         import source.config as cfg
         from source.modules.DataExtractors.dev_ColorDetector import ColorDetector
+        import pyautogui as pg
+
+        # PyAutoGui()
+        # while True:
+        #     pos = pg.position()
+        #     size = pg.size()
+        #     print(f"{pos}; {(pos[0] / size[0], pos[1] / size[1])}")
+        #     time.sleep(0.1)
 
         def avg(lst):
             if not lst:
@@ -46,7 +54,7 @@ class Core:
             event = AOIExtractor().extract_data_from_pil_image(img)
             event = Scrooper().process_data(event)
             PyAutoGui().act_on_event(event)
-        exit()
+            exit()
 
         while True:
             time.sleep(1)
